@@ -8,6 +8,7 @@ import { supabase } from './lib/supabaseClient'
 import type { User } from '@supabase/supabase-js'
 import './App.css'
 import AdminDashboard from './components/AdminDashboard'
+import { Eye, EyeOff } from 'lucide-react'
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
 
@@ -23,6 +24,7 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(false)
   const [view, setView] = useState<'landing' | 'admin'>('landing')
   const [authLoading, setAuthLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   useGSAP(
     () => {
@@ -155,6 +157,14 @@ function App() {
     const password = formData.get('password') as string
     const fullName = formData.get('fullName') as string
 
+    if (authMode === 'register') {
+      if (password.length < 6) {
+        alert('La contraseña debe tener al menos 6 caracteres.')
+        setAuthLoading(false)
+        return
+      }
+    }
+
     try {
       if (authMode === 'login') {
         const { error } = await supabase.auth.signInWithPassword({ email, password })
@@ -165,8 +175,13 @@ function App() {
           password,
           options: { data: { full_name: fullName } }
         })
-        if (error) throw error
-        alert('Revisa tu correo para confirmar el registro.')
+        if (error) {
+          if (error.message.includes('already registered')) {
+            throw new Error('Este correo ya está registrado.')
+          }
+          throw error
+        }
+        alert('¡Registro exitoso! Revisa tu correo para confirmar.')
       }
       setShowAuthModal(false)
     } catch (error: any) {
@@ -739,7 +754,21 @@ function App() {
                     </div>
                     <div className="form-field">
                       <label>Password</label>
-                      <input type="password" name="password" placeholder="********" required />
+                      <div className="password-input-wrapper">
+                        <input 
+                          type={showPassword ? 'text' : 'password'} 
+                          name="password" 
+                          placeholder="********" 
+                          required 
+                        />
+                        <button 
+                          type="button" 
+                          className="password-toggle"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
                     </div>
                     <button type="submit" className="btn primary" disabled={authLoading}>
                       {authLoading ? 'Cargando...' : 'Entrar'}
@@ -759,7 +788,21 @@ function App() {
                     </div>
                     <div className="form-field">
                       <label>Password</label>
-                      <input type="password" name="password" placeholder="********" required />
+                      <div className="password-input-wrapper">
+                        <input 
+                          type={showPassword ? 'text' : 'password'} 
+                          name="password" 
+                          placeholder="********" 
+                          required 
+                        />
+                        <button 
+                          type="button" 
+                          className="password-toggle"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
                     </div>
                     <button type="submit" className="btn primary" disabled={authLoading}>
                       {authLoading ? 'Cargando...' : 'Registrarme'}
