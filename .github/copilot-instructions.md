@@ -1,0 +1,21 @@
+- [x] Verify that the copilot-instructions.md file in the .github directory is created.
+  - Done: created .github/copilot-instructions.md.
+- [x] Clarify Project Requirements
+  - Done: confirmed TypeScript + npm for Vite React.
+- [x] Scaffold the Project
+  - Done: scaffolded with Vite template react-ts (package name prodmagma).
+- [x] Customize the Project
+  - Done: replaced App content, styles, and assets with Magma Studio design.
+- [x] Install Required Extensions
+  - Done: no extensions required.
+- [x] Compile the Project
+  - Done: npm run build
+- [x] Create and Run Task
+  - Done: created and started a dev task (npm run dev).
+- [ ] Launch the Project
+  - Pending: awaiting confirmation.
+- [x] Ensure Documentation is Complete
+  - Done: README updated and HTML comments removed.
+- Work through each checklist item systematically.
+- Keep communication concise and focused.
+- Follow development best practices.
