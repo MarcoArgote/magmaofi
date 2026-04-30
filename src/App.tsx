@@ -383,88 +383,49 @@ function App() {
                 </ul>
                 <details className="license-accordion">
                   <summary className="btn ghost plan-toggle">
-                    Mas informacion
+                    Ver licencias y detalles
                   </summary>
-                  <div className="license-scroll">
-                    <div className="license-table">
-                      <div className="license-cell license-head"></div>
-                      <div className="license-cell license-head">
-                        Basica
-                        <span>Bs 99</span>
+                  <div className="tier-comparison">
+                    <div className="tier-block">
+                      <div className="tier-header">
+                        <span className="tier-name">Básica</span>
+                        <span className="tier-price">Bs 99</span>
                       </div>
-                      <div className="license-cell license-head">
-                        Gold
-                        <span>Bs 120</span>
+                      <ul className="tier-features">
+                        <li className="yes">Beat personalizado</li>
+                        <li className="no">Uso comercial</li>
+                        <li className="no">Entrega WAV</li>
+                        <li className="no">Derechos exclusivos</li>
+                        <li className="no">Soporte post-venta</li>
+                      </ul>
+                    </div>
+                    
+                    <div className="tier-block highlight">
+                      <div className="tier-header">
+                        <span className="tier-name">Gold</span>
+                        <span className="tier-price">Bs 120</span>
                       </div>
-                      <div className="license-cell license-head">
-                        Exclusiva
-                        <span>Bs 350</span>
-                      </div>
+                      <ul className="tier-features">
+                        <li className="yes">Beat personalizado</li>
+                        <li className="yes">Uso comercial</li>
+                        <li className="yes">Entrega WAV</li>
+                        <li className="no">Derechos exclusivos</li>
+                        <li className="no">Soporte post-venta</li>
+                      </ul>
+                    </div>
 
-                      <div className="license-cell license-feature">
-                        Beat personalizado
+                    <div className="tier-block exclusive">
+                      <div className="tier-header">
+                        <span className="tier-name">Exclusiva</span>
+                        <span className="tier-price">Bs 350</span>
                       </div>
-                      <div className="license-cell">
-                        <span className="license-flag yes">✓</span>
-                      </div>
-                      <div className="license-cell">
-                        <span className="license-flag yes">✓</span>
-                      </div>
-                      <div className="license-cell">
-                        <span className="license-flag yes">✓</span>
-                      </div>
-
-                      <div className="license-cell license-feature">
-                        Uso comercial
-                      </div>
-                      <div className="license-cell">
-                        <span className="license-flag no">X</span>
-                      </div>
-                      <div className="license-cell">
-                        <span className="license-flag yes">✓</span>
-                      </div>
-                      <div className="license-cell">
-                        <span className="license-flag yes">✓</span>
-                      </div>
-
-                      <div className="license-cell license-feature">
-                        Entrega WAV
-                      </div>
-                      <div className="license-cell">
-                        <span className="license-flag no">X</span>
-                      </div>
-                      <div className="license-cell">
-                        <span className="license-flag no">✓</span>
-                      </div>
-                      <div className="license-cell">
-                        <span className="license-flag yes">✓</span>
-                      </div>
-
-                      <div className="license-cell license-feature">
-                        Derechos exclusivos
-                      </div>
-                      <div className="license-cell">
-                        <span className="license-flag no">X</span>
-                      </div>
-                      <div className="license-cell">
-                        <span className="license-flag no">X</span>
-                      </div>
-                      <div className="license-cell">
-                        <span className="license-flag yes">✓</span>
-                      </div>
-
-                      <div className="license-cell license-feature">
-                        Soporte post-venta
-                      </div>
-                      <div className="license-cell">
-                        <span className="license-flag no">X</span>
-                      </div>
-                      <div className="license-cell">
-                        <span className="license-flag no">X</span>
-                      </div>
-                      <div className="license-cell">
-                        <span className="license-flag yes">✓</span>
-                      </div>
+                      <ul className="tier-features">
+                        <li className="yes">Beat personalizado</li>
+                        <li className="yes">Uso comercial</li>
+                        <li className="yes">Entrega WAV</li>
+                        <li className="yes">Derechos exclusivos</li>
+                        <li className="yes">Soporte post-venta</li>
+                      </ul>
                     </div>
                   </div>
                 </details>
