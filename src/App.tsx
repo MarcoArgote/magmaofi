@@ -117,7 +117,7 @@ function App() {
   }
 
   const checkAdminStatus = async (userId: string) => {
-    const { data, error } = await supabase
+    const { data } = await supabase
       .from('profiles')
       .select('role')
       .eq('id', userId)
