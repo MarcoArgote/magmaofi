@@ -121,7 +121,7 @@ function App() {
       .eq('id', userId)
       .single()
     
-    if (data && data.role === 'admin') {
+    if (data && (data.role === 'admin' || data.role === 'owner')) {
       setIsAdmin(true)
     } else {
       setIsAdmin(false)
@@ -300,7 +300,8 @@ function App() {
         {view === 'admin' && isAdmin ? (
           <AdminDashboard />
         ) : (
-          <main>
+          <>
+            <main>
             <section id="inicio" className="hero" ref={heroRef}>
           <div className="hero-copy reveal">
             <p className="eyebrow">Magma Studio</p>
@@ -704,76 +705,74 @@ function App() {
           </div>
         </section>
 
-      </main>
-
-      {showAuthModal && (
-        <div className="auth-overlay" onClick={() => setShowAuthModal(false)}>
-          <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
-            <button className="close-modal" onClick={() => setShowAuthModal(false)}>&times;</button>
-
-            <div className="auth-tabs">
-              <button
-                className={`auth-tab ${authMode === 'login' ? 'active' : ''}`}
-                onClick={() => setAuthMode('login')}
-              >
-                Login
-              </button>
-              <button
-                className={`auth-tab ${authMode === 'register' ? 'active' : ''}`}
-                onClick={() => setAuthMode('register')}
-              >
-                Registro
-              </button>
-            </div>
-
-            {authMode === 'login' ? (
-              <form className="auth-form-container" onSubmit={handleAuth}>
-                <h3>Bienvenido de nuevo</h3>
-                <p className="helper">Ingresa a tu cuenta de artista.</p>
-                <div className="form-field">
-                  <label>Email</label>
-                  <input type="email" name="email" placeholder="tu@email.com" required />
-                </div>
-                <div className="form-field">
-                  <label>Password</label>
-                  <input type="password" name="password" placeholder="********" required />
-                </div>
-                <button type="submit" className="btn primary" disabled={authLoading}>
-                  {authLoading ? 'Cargando...' : 'Entrar'}
-                </button>
-              </form>
-            ) : (
-              <form className="auth-form-container" onSubmit={handleAuth}>
-                <h3>Únete a la familia</h3>
-                <p className="helper">Crea tu cuenta para gestionar tus proyectos.</p>
-                <div className="form-field">
-                  <label>Nombre</label>
-                  <input type="text" name="fullName" placeholder="Tu nombre artístico" required />
-                </div>
-                <div className="form-field">
-                  <label>Email</label>
-                  <input type="email" name="email" placeholder="tu@email.com" required />
-                </div>
-                <div className="form-field">
-                  <label>Password</label>
-                  <input type="password" name="password" placeholder="********" required />
-                </div>
-                <button type="submit" className="btn primary" disabled={authLoading}>
-                  {authLoading ? 'Cargando...' : 'Registrarme'}
-                </button>
-              </form>
-            )}
-            <p className="auth-note">Próximamente conexión con Supabase.</p>
-          </div>
-        </div>
-      )}
-
-        ) : (
+          </main>
           <footer className="footer">
             Magma Studio - sonido y vision en un solo golpe.
           </footer>
-        )}
-      </div>
+          {showAuthModal && (
+            <div className="auth-overlay" onClick={() => setShowAuthModal(false)}>
+              <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
+                <button className="close-modal" onClick={() => setShowAuthModal(false)}>&times;</button>
+
+                <div className="auth-tabs">
+                  <button
+                    className={`auth-tab ${authMode === 'login' ? 'active' : ''}`}
+                    onClick={() => setAuthMode('login')}
+                  >
+                    Login
+                  </button>
+                  <button
+                    className={`auth-tab ${authMode === 'register' ? 'active' : ''}`}
+                    onClick={() => setAuthMode('register')}
+                  >
+                    Registro
+                  </button>
+                </div>
+
+                {authMode === 'login' ? (
+                  <form className="auth-form-container" onSubmit={handleAuth}>
+                    <h3>Bienvenido de nuevo</h3>
+                    <p className="helper">Ingresa a tu cuenta de artista.</p>
+                    <div className="form-field">
+                      <label>Email</label>
+                      <input type="email" name="email" placeholder="tu@email.com" required />
+                    </div>
+                    <div className="form-field">
+                      <label>Password</label>
+                      <input type="password" name="password" placeholder="********" required />
+                    </div>
+                    <button type="submit" className="btn primary" disabled={authLoading}>
+                      {authLoading ? 'Cargando...' : 'Entrar'}
+                    </button>
+                  </form>
+                ) : (
+                  <form className="auth-form-container" onSubmit={handleAuth}>
+                    <h3>Únete a la familia</h3>
+                    <p className="helper">Crea tu cuenta para gestionar tus proyectos.</p>
+                    <div className="form-field">
+                      <label>Nombre</label>
+                      <input type="text" name="fullName" placeholder="Tu nombre artístico" required />
+                    </div>
+                    <div className="form-field">
+                      <label>Email</label>
+                      <input type="email" name="email" placeholder="tu@email.com" required />
+                    </div>
+                    <div className="form-field">
+                      <label>Password</label>
+                      <input type="password" name="password" placeholder="********" required />
+                    </div>
+                    <button type="submit" className="btn primary" disabled={authLoading}>
+                      {authLoading ? 'Cargando...' : 'Registrarme'}
+                    </button>
+                  </form>
+                )}
+                <p className="auth-note">Próximamente conexión con Supabase.</p>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
   )
 }
 
