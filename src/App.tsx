@@ -698,7 +698,15 @@ function App() {
             <form className="contact-form reveal" onSubmit={handleWhatsAppSubmit}>
               <div className="form-field">
                 <label htmlFor="nombre">Nombre</label>
-                <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required />
+                <input 
+                  type="text" 
+                  id="nombre" 
+                  name="nombre" 
+                  key={user?.id || 'guest'}
+                  defaultValue={user?.user_metadata?.full_name || ''}
+                  placeholder="Tu nombre" 
+                  required 
+                />
               </div>
               <div className="form-field">
                 <label htmlFor="servicio">Servicio de interés</label>
