@@ -101,7 +101,7 @@ function App() {
     const nombre = formData.get('nombre')
     const servicio = formData.get('servicio')
     const mensaje = formData.get('mensaje')
-    
+
     const text = `Hola Magma Studio! Mi nombre es ${nombre}. Me interesa el servicio: ${servicio}. Mi consulta: ${mensaje}`
     const encodedText = encodeURIComponent(text)
     window.open(`https://wa.me/59165335510?text=${encodedText}`, '_blank')
@@ -165,7 +165,7 @@ function App() {
 
     return () => {
       links.forEach((link) => {
-        link.removeEventListener('click', () => {})
+        link.removeEventListener('click', () => { })
       })
     }
   }, [])
@@ -232,9 +232,9 @@ function App() {
         <section id="catalogo" className="section plans">
           <div className="section-header reveal">
             <p className="eyebrow">Planes Magma</p>
-            <h2>Planes claros para video, musica y combos</h2>
+            <h2>Planes para video, musica y combos</h2>
             <p>
-              Planes claros para video, musica y combos listos para artistas
+              Planes para video, musica y combos listos para artistas
               que quieren verse y sonar pro.
             </p>
           </div>
@@ -273,9 +273,9 @@ function App() {
                     redes sociales.
                   </li>
                 </ul>
-                <button type="button" className="btn ghost">
-                  Mas informacion
-                </button>
+                <a href="#contacto" className="btn primary">
+                  Reservar este plan
+                </a>
               </article>
               <article className="plan-card highlight reveal">
                 <div className="plan-tags">
@@ -305,9 +305,9 @@ function App() {
                     redes sociales.
                   </li>
                 </ul>
-                <button type="button" className="btn primary">
+                <a href="#contacto" className="btn primary">
                   Reservar este plan
-                </button>
+                </a>
               </article>
             </div>
           </div>
@@ -348,9 +348,9 @@ function App() {
                     proyecto.
                   </li>
                 </ul>
-                <button type="button" className="btn ghost">
+                <a href="#contacto" className="btn primary">
                   Reservar este plan
-                </button>
+                </a>
               </article>
               <article className="plan-card reveal">
                 <div className="plan-tags">
@@ -509,9 +509,9 @@ function App() {
                     rapido.
                   </li>
                 </ul>
-                <button type="button" className="btn primary">
+                <a href="#contacto" className="btn primary">
                   Reservar este plan
-                </button>
+                </a>
               </article>
               <article className="plan-card recommended reveal">
                 <span className="plan-badge mint">Recomendado</span>
@@ -536,15 +536,15 @@ function App() {
                   <li>
                     <span className="plan-check">✓</span>Beat proporcionado por el artista.
                   </li>
-                  
+
                   <li>
                     <span className="plan-check">✓</span>Mejor relacion imagen
                     + sonido.
                   </li>
                 </ul>
-                <button type="button" className="btn primary">
+                <a href="#contacto" className="btn primary">
                   Reservar este plan
-                </button>
+                </a>
               </article>
             </div>
           </div>
@@ -615,7 +615,7 @@ function App() {
                 </li>
               </ul>
             </div>
-            
+
             <form className="contact-form reveal" onSubmit={handleWhatsAppSubmit}>
               <div className="form-field">
                 <label htmlFor="nombre">Nombre</label>
@@ -647,15 +647,15 @@ function App() {
         <div className="auth-overlay" onClick={() => setShowAuthModal(false)}>
           <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
             <button className="close-modal" onClick={() => setShowAuthModal(false)}>&times;</button>
-            
+
             <div className="auth-tabs">
-              <button 
+              <button
                 className={`auth-tab ${authMode === 'login' ? 'active' : ''}`}
                 onClick={() => setAuthMode('login')}
               >
                 Login
               </button>
-              <button 
+              <button
                 className={`auth-tab ${authMode === 'register' ? 'active' : ''}`}
                 onClick={() => setAuthMode('register')}
               >
