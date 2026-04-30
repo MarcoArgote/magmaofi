@@ -4,7 +4,10 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 import producerPhoto from '/img/vark.png'
 import directorPhoto from '/img/argot.png'
+import { supabase } from './lib/supabaseClient'
+import { User } from '@supabase/supabase-js'
 import './App.css'
+import AdminDashboard from './components/AdminDashboard'
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
 
@@ -16,6 +19,10 @@ function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login')
+  const [user, setUser] = useState<User | null>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
+  const [view, setView] = useState<'landing' | 'admin'>('landing')
+  const [authLoading, setAuthLoading] = useState(false)
 
   useGSAP(
     () => {
@@ -107,6 +114,73 @@ function App() {
     window.open(`https://wa.me/59165335510?text=${encodedText}`, '_blank')
   }
 
+  const checkAdminStatus = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', userId)
+      .single()
+    
+    if (data && data.role === 'admin') {
+      setIsAdmin(true)
+    } else {
+      setIsAdmin(false)
+    }
+  }
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null)
+      if (session?.user) checkAdminStatus(session.user.id)
+    })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null)
+      if (session?.user) {
+        checkAdminStatus(session.user.id)
+      } else {
+        setIsAdmin(false)
+        setView('landing')
+      }
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const handleAuth = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setAuthLoading(true)
+    const formData = new FormData(e.currentTarget)
+    const email = formData.get('email') as string
+    const password = formData.get('password') as string
+    const fullName = formData.get('fullName') as string
+
+    try {
+      if (authMode === 'login') {
+        const { error } = await supabase.auth.signInWithPassword({ email, password })
+        if (error) throw error
+      } else {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { data: { full_name: fullName } }
+        })
+        if (error) throw error
+        alert('Revisa tu correo para confirmar el registro.')
+      }
+      setShowAuthModal(false)
+    } catch (error: any) {
+      alert(error.message)
+    } finally {
+      setAuthLoading(false)
+    }
+  }
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    setView('landing')
+  }
+
   useEffect(() => {
     const elementsToReveal = document.querySelectorAll('.reveal')
     elementsToReveal.forEach((el) => el.classList.add('gsap-animate'))
@@ -182,24 +256,52 @@ function App() {
           <span className="menu-text">Menú</span>
         </button>
         <nav className={`nav ${menuOpen ? 'open' : ''}`}>
-          <a href="#inicio" onClick={() => setMenuOpen(false)}>Inicio</a>
-          <a href="#catalogo" onClick={() => setMenuOpen(false)}>Catálogo</a>
-          <a href="#nosotros" onClick={() => setMenuOpen(false)}>Nosotros</a>
-          <a href="#contacto" onClick={() => setMenuOpen(false)}>Contáctanos</a>
-          <button className="nav-btn" onClick={() => openAuth('login')}>Login</button>
+          <a href="#inicio" onClick={() => { setView('landing'); setMenuOpen(false); }}>Inicio</a>
+          <a href="#catalogo" onClick={() => { setView('landing'); setMenuOpen(false); }}>Catálogo</a>
+          <a href="#nosotros" onClick={() => { setView('landing'); setMenuOpen(false); }}>Nosotros</a>
+          <a href="#contacto" onClick={() => { setView('landing'); setMenuOpen(false); }}>Contáctanos</a>
+          {isAdmin && (
+            <button className="nav-btn admin" onClick={() => { setView('admin'); setMenuOpen(false); }}>Dashboard</button>
+          )}
+          {!user ? (
+            <button className="nav-btn" onClick={() => openAuth('login')}>Login</button>
+          ) : (
+            <button className="nav-btn" onClick={handleLogout}>Cerrar Sesión</button>
+          )}
         </nav>
         <div className="header-actions">
-          <button type="button" className="btn ghost" onClick={() => openAuth('login')}>
-            Login
-          </button>
-          <button type="button" className="btn primary" onClick={() => openAuth('register')}>
-            Register
-          </button>
+          {isAdmin && view === 'landing' && (
+            <button type="button" className="btn ghost" onClick={() => setView('admin')}>
+              Dashboard
+            </button>
+          )}
+          {view === 'admin' && (
+            <button type="button" className="btn ghost" onClick={() => setView('landing')}>
+              Sitio Web
+            </button>
+          )}
+          {!user ? (
+            <>
+              <button type="button" className="btn ghost" onClick={() => openAuth('login')}>
+                Login
+              </button>
+              <button type="button" className="btn primary" onClick={() => openAuth('register')}>
+                Register
+              </button>
+            </>
+          ) : (
+            <button type="button" className="btn primary" onClick={handleLogout}>
+              Logout
+            </button>
+          )}
         </div>
       </header>
 
-      <main>
-        <section id="inicio" className="hero" ref={heroRef}>
+        {view === 'admin' && isAdmin ? (
+          <AdminDashboard />
+        ) : (
+          <main>
+            <section id="inicio" className="hero" ref={heroRef}>
           <div className="hero-copy reveal">
             <p className="eyebrow">Magma Studio</p>
             <h1 className="hero-title">Grabacion, produccion y video con pulso urbano.</h1>
@@ -625,47 +727,53 @@ function App() {
             </div>
 
             {authMode === 'login' ? (
-              <div className="auth-form-container">
+              <form className="auth-form-container" onSubmit={handleAuth}>
                 <h3>Bienvenido de nuevo</h3>
                 <p className="helper">Ingresa a tu cuenta de artista.</p>
                 <div className="form-field">
                   <label>Email</label>
-                  <input type="email" placeholder="tu@email.com" />
+                  <input type="email" name="email" placeholder="tu@email.com" required />
                 </div>
                 <div className="form-field">
                   <label>Password</label>
-                  <input type="password" placeholder="********" />
+                  <input type="password" name="password" placeholder="********" required />
                 </div>
-                <button type="button" className="btn primary">Entrar</button>
-              </div>
+                <button type="submit" className="btn primary" disabled={authLoading}>
+                  {authLoading ? 'Cargando...' : 'Entrar'}
+                </button>
+              </form>
             ) : (
-              <div className="auth-form-container">
+              <form className="auth-form-container" onSubmit={handleAuth}>
                 <h3>Únete a la familia</h3>
                 <p className="helper">Crea tu cuenta para gestionar tus proyectos.</p>
                 <div className="form-field">
                   <label>Nombre</label>
-                  <input type="text" placeholder="Tu nombre artístico" />
+                  <input type="text" name="fullName" placeholder="Tu nombre artístico" required />
                 </div>
                 <div className="form-field">
                   <label>Email</label>
-                  <input type="email" placeholder="tu@email.com" />
+                  <input type="email" name="email" placeholder="tu@email.com" required />
                 </div>
                 <div className="form-field">
                   <label>Password</label>
-                  <input type="password" placeholder="********" />
+                  <input type="password" name="password" placeholder="********" required />
                 </div>
-                <button type="button" className="btn primary">Registrarme</button>
-              </div>
+                <button type="submit" className="btn primary" disabled={authLoading}>
+                  {authLoading ? 'Cargando...' : 'Registrarme'}
+                </button>
+              </form>
             )}
             <p className="auth-note">Próximamente conexión con Supabase.</p>
           </div>
         </div>
       )}
 
-      <footer className="footer">
-        Magma Studio - sonido y vision en un solo golpe.
-      </footer>
-    </div>
+        ) : (
+          <footer className="footer">
+            Magma Studio - sonido y vision en un solo golpe.
+          </footer>
+        )}
+      </div>
   )
 }
 
