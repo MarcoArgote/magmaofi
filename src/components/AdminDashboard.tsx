@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { financeService, Transaction } from '../services/financeService'
+import { financeService, type Transaction } from '../services/financeService'
 import { Plus, TrendingUp, TrendingDown, Wallet, Trash2, X } from 'lucide-react'
 
 const AdminDashboard: React.FC = () => {
