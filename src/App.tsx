@@ -5,7 +5,7 @@ import { useGSAP } from '@gsap/react'
 import producerPhoto from '/img/vark.png'
 import directorPhoto from '/img/argot.png'
 import { supabase } from './lib/supabaseClient'
-import { User } from '@supabase/supabase-js'
+import type { User } from '@supabase/supabase-js'
 import './App.css'
 import AdminDashboard from './components/AdminDashboard'
 
