@@ -766,7 +766,6 @@ function App() {
                     </button>
                   </form>
                 )}
-                <p className="auth-note">Próximamente conexión con Supabase.</p>
               </div>
             </div>
           )}

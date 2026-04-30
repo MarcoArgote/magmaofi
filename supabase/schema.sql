@@ -1,5 +1,6 @@
--- Create profiles table
-CREATE TABLE IF NOT EXISTS public.profiles (
+-- Create profiles table (DROP it first to ensure constraints are updated)
+DROP TABLE IF EXISTS public.profiles CASCADE;
+CREATE TABLE public.profiles (
     id UUID REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
     full_name TEXT,
     role TEXT DEFAULT 'cliente' CHECK (role IN ('owner', 'admin', 'cliente')),
