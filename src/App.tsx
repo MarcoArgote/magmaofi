@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
@@ -13,6 +13,9 @@ function App() {
   const heroRef = useRef<HTMLElement | null>(null)
   const producerRef = useRef<HTMLImageElement | null>(null)
   const directorRef = useRef<HTMLImageElement | null>(null)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login')
 
   useGSAP(
     () => {
@@ -82,6 +85,91 @@ function App() {
     { scope: root },
   )
 
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen)
+  }
+
+  const openAuth = (mode: 'login' | 'register') => {
+    setAuthMode(mode)
+    setShowAuthModal(true)
+    setMenuOpen(false)
+  }
+
+  const handleWhatsAppSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    const nombre = formData.get('nombre')
+    const servicio = formData.get('servicio')
+    const mensaje = formData.get('mensaje')
+    
+    const text = `Hola Magma Studio! Mi nombre es ${nombre}. Me interesa el servicio: ${servicio}. Mi consulta: ${mensaje}`
+    const encodedText = encodeURIComponent(text)
+    window.open(`https://wa.me/59165335510?text=${encodedText}`, '_blank')
+  }
+
+  useEffect(() => {
+    const elementsToReveal = document.querySelectorAll('.reveal')
+    elementsToReveal.forEach((el) => el.classList.add('gsap-animate'))
+
+    gsap.fromTo(
+      '.reveal.gsap-animate',
+      { opacity: 0, y: 50 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 1,
+        stagger: 0.3,
+        scrollTrigger: {
+          trigger: '.reveal',
+          start: 'top 80%',
+          toggleActions: 'play none none none',
+        },
+      }
+    )
+
+    gsap.fromTo(
+      '.fade-in.gsap-animate',
+      { opacity: 0 },
+      {
+        opacity: 1,
+        duration: 1.5,
+        scrollTrigger: {
+          trigger: '.fade-in',
+          start: 'top 90%',
+          toggleActions: 'play none none none',
+        },
+      }
+    )
+  }, [])
+
+  useEffect(() => {
+    const links = document.querySelectorAll('a[href^="#"]')
+
+    links.forEach((link) => {
+      link.addEventListener('click', (event) => {
+        event.preventDefault()
+        const href = link.getAttribute('href')
+        if (href) {
+          const targetId = href.substring(1)
+          const targetElement = document.getElementById(targetId)
+
+          if (targetElement) {
+            window.scrollTo({
+              top: targetElement.offsetTop,
+              behavior: 'smooth',
+            })
+          }
+        }
+      })
+    })
+
+    return () => {
+      links.forEach((link) => {
+        link.removeEventListener('click', () => {})
+      })
+    }
+  }, [])
+
   return (
     <div className="page" ref={root}>
       <header className="site-header">
@@ -89,18 +177,22 @@ function App() {
           <span className="brand-mark" aria-hidden="true"></span>
           MAGMA
         </div>
-        <nav className="nav">
-          <a href="#inicio">Inicio</a>
-          <a href="#catalogo">Catalogo</a>
-          <a href="#nosotros">Nosotros</a>
-          <a href="#contacto">Contactanos</a>
-          <a href="#acceso">Login</a>
+        <button className="menu-toggle" onClick={toggleMenu} aria-label="Toggle navigation">
+          <span className="menu-icon"></span>
+          <span className="menu-text">Menú</span>
+        </button>
+        <nav className={`nav ${menuOpen ? 'open' : ''}`}>
+          <a href="#inicio" onClick={() => setMenuOpen(false)}>Inicio</a>
+          <a href="#catalogo" onClick={() => setMenuOpen(false)}>Catálogo</a>
+          <a href="#nosotros" onClick={() => setMenuOpen(false)}>Nosotros</a>
+          <a href="#contacto" onClick={() => setMenuOpen(false)}>Contáctanos</a>
+          <button className="nav-btn" onClick={() => openAuth('login')}>Login</button>
         </nav>
         <div className="header-actions">
-          <button type="button" className="btn ghost">
+          <button type="button" className="btn ghost" onClick={() => openAuth('login')}>
             Login
           </button>
-          <button type="button" className="btn primary">
+          <button type="button" className="btn primary" onClick={() => openAuth('register')}>
             Register
           </button>
         </div>
@@ -108,40 +200,12 @@ function App() {
 
       <main>
         <section id="inicio" className="hero" ref={heroRef}>
-          <div className="hero-copy">
-            <p className="eyebrow reveal">Magma Studio</p>
-            <h1 className="hero-title reveal">
-              Empieza con nosotros.
-            </h1>
-            <p className="lead reveal">
-              Estudio para musica y video. Grabamos, mezclamos y
-              dirigimos tu idea. Haz tu idea una musica con videoclip.
-            </p>
-            <div className="hero-actions reveal">
-              <button type="button" className="btn primary">
-                Reservar estudio
-              </button>
-              <button type="button" className="btn ghost">
-                Ver catalogo
-              </button>
-            </div>
-            <div className="hero-metrics reveal">
-              <div>
-                <span className="metric-number">+2000</span>
-                <span className="metric-label">visitas a la pagina</span>
-              </div>
-              <div>
-                <span className="metric-number">4K</span>
-                <span className="metric-label">Video y color</span>
-              </div>
-              <div>
-                <span className="metric-number">+5</span>
-                <span className="metric-label">Años de experiencia</span>
-              </div>
-            </div>
-            <div className="signal-line" aria-hidden="true"></div>
+          <div className="hero-copy reveal">
+            <p className="eyebrow">Magma Studio</p>
+            <h1 className="hero-title">Grabacion, produccion y video con pulso urbano.</h1>
+            <p className="lead">Estudio creativo para musica y video. Grabamos, mezclamos y dirigimos piezas con estetica cruda y moderna. Pronto: reservas, clientes y pagos con Supabase.</p>
           </div>
-          <div className="hero-visual">
+          <div className="hero-visual fade-in">
             <div className="image-row">
               <div className="image-container">
                 <img
@@ -162,7 +226,6 @@ function App() {
                 <p className="image-label">Director de video</p>
               </div>
             </div>
-            
           </div>
         </section>
 
@@ -495,22 +558,19 @@ function App() {
           <div className="split">
             <div className="reveal">
               <p className="lead">
-                Somos un duo de productor musical y director de video. Nuestro
-                flujo une sonido y camara para piezas que se sienten vivas. En
-                2026 abrimos Magma como estudio urbano para artistas, marcas y
-                crews que quieren un look autentico.
+                En Studio Magma, la música no es solo un trabajo; es un legado. Somos dos hermanos apasionados por la producción de audio y video. Fusionamos nuestra conexión personal con la disciplina técnica para ofrecer un espacio donde los artistas emergentes pueden transformar sus ideas en hits. Nuestra misión es simple: darle a tu talento el fuego y la estructura que necesita para estallar en la industria urbana.
               </p>
               <ul className="values">
-                <li>Detalle tecnico y mezcla limpia.</li>
-                <li>Direccion creativa con guion visual.</li>
-                <li>Entrega rapida con backups seguros.</li>
+                <li>Mazter y mezcla.</li>
+                <li>Direccion creativa.</li>
+                <li>Asesorias si en caso necesitaras.</li>
               </ul>
             </div>
             <div className="panel-grid">
               <div className="panel reveal">
                 <h4>Productor Musical</h4>
                 <p>
-                  Beats, tracking y mezcla final con actitud. Enfoque en
+                  Beats, tracking y mezcla. Enfoque en
                   dinamica y punch.
                 </p>
               </div>
@@ -522,10 +582,9 @@ function App() {
                 </p>
               </div>
               <div className="panel reveal">
-                <h4>Pipeline</h4>
+                <h4>Velocidad</h4>
                 <p>
-                  Un solo calendario, archivos ordenados y seguimiento por
-                  Supabase cuando este listo.
+                  Entrega en menos de 3 dias.
                 </p>
               </div>
             </div>
@@ -537,7 +596,7 @@ function App() {
             <p className="eyebrow">Contactanos</p>
             <h2>Cuentalo y lo aterrizamos</h2>
             <p>
-              Envia tu brief. Respondemos con propuesta, calendario y costo en
+              Envia tu propuesta. Respondemos con propuesta, calendario y costo en
               menos de 24 horas.
             </p>
           </div>
@@ -546,98 +605,101 @@ function App() {
               <p className="lead">Magma Studio</p>
               <ul className="contact-list">
                 <li>
-                  <span>Direccion:</span> Zona Centro, CDMX
+                  <span>Direccion:</span> Cochabamba, Bolivia
                 </li>
                 <li>
-                  <span>Horario:</span> Lun a Sab, 10:00 - 22:00
+                  <span>Horario:</span> Lun a Domingos, 24/7
                 </li>
                 <li>
-                  <span>Email:</span> hola@magma.studio
-                </li>
-                <li>
-                  <span>Tel:</span> +52 55 0000 0000
+                  <span>Contactame:</span> +591 65335510
                 </li>
               </ul>
             </div>
-            <form
-              className="contact-form reveal"
-              onSubmit={(event) => event.preventDefault()}
-            >
-              <label className="form-field">
-                Nombre
-                <input type="text" placeholder="Tu nombre" />
-              </label>
-              <label className="form-field">
-                Email
-                <input type="email" placeholder="tu@email.com" />
-              </label>
-              <label className="form-field">
-                Proyecto
-                <input type="text" placeholder="EP, video, campana" />
-              </label>
-              <label className="form-field">
-                Mensaje
-                <textarea placeholder="Que necesitas y para cuando"></textarea>
-              </label>
-              <div className="form-actions">
-                <button type="submit" className="btn primary">
-                  Enviar brief
-                </button>
-                <button type="button" className="btn whatsapp">
-                  WhatsApp
-                </button>
+            
+            <form className="contact-form reveal" onSubmit={handleWhatsAppSubmit}>
+              <div className="form-field">
+                <label htmlFor="nombre">Nombre</label>
+                <input type="text" id="nombre" name="nombre" placeholder="Tu nombre" required />
               </div>
+              <div className="form-field">
+                <label htmlFor="servicio">Servicio de interés</label>
+                <select id="servicio" name="servicio" className="form-input">
+                  <option value="Video">Producción de Video</option>
+                  <option value="Musica">Producción Musical</option>
+                  <option value="Combo">Combo Magma</option>
+                  <option value="Otro">Otro / Consulta General</option>
+                </select>
+              </div>
+              <div className="form-field">
+                <label htmlFor="mensaje">Mensaje</label>
+                <textarea id="mensaje" name="mensaje" placeholder="Cuéntanos tu proyecto..." required></textarea>
+              </div>
+              <button type="submit" className="btn primary whatsapp">
+                Enviar a WhatsApp
+              </button>
             </form>
           </div>
         </section>
 
-        <section id="acceso" className="section">
-          <div className="section-header reveal">
-            <p className="eyebrow">Acceso</p>
-            <h2>Login y Register</h2>
-            <p>
-              Pantallas listas para integrar con Supabase cuando activemos la
-              base de datos.
-            </p>
-          </div>
-          <div className="auth-grid">
-            <div className="auth-card reveal">
-              <h3>Login</h3>
-              <label className="form-field">
-                Email
-                <input type="email" placeholder="tu@email.com" />
-              </label>
-              <label className="form-field">
-                Password
-                <input type="password" placeholder="********" />
-              </label>
-              <button type="button" className="btn primary">
-                Entrar
-              </button>
-              <p className="helper">Proximamente conectado a Supabase.</p>
-            </div>
-            <div className="auth-card reveal">
-              <h3>Register</h3>
-              <label className="form-field">
-                Nombre
-                <input type="text" placeholder="Tu nombre" />
-              </label>
-              <label className="form-field">
-                Email
-                <input type="email" placeholder="tu@email.com" />
-              </label>
-              <label className="form-field">
-                Password
-                <input type="password" placeholder="********" />
-              </label>
-              <button type="button" className="btn ghost">
-                Crear cuenta
-              </button>
-              <p className="helper">Registro informativo por ahora.</p>
-            </div>
-          </div>
-        </section>
       </main>
+
+      {showAuthModal && (
+        <div className="auth-overlay" onClick={() => setShowAuthModal(false)}>
+          <div className="auth-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="close-modal" onClick={() => setShowAuthModal(false)}>&times;</button>
+            
+            <div className="auth-tabs">
+              <button 
+                className={`auth-tab ${authMode === 'login' ? 'active' : ''}`}
+                onClick={() => setAuthMode('login')}
+              >
+                Login
+              </button>
+              <button 
+                className={`auth-tab ${authMode === 'register' ? 'active' : ''}`}
+                onClick={() => setAuthMode('register')}
+              >
+                Registro
+              </button>
+            </div>
+
+            {authMode === 'login' ? (
+              <div className="auth-form-container">
+                <h3>Bienvenido de nuevo</h3>
+                <p className="helper">Ingresa a tu cuenta de artista.</p>
+                <div className="form-field">
+                  <label>Email</label>
+                  <input type="email" placeholder="tu@email.com" />
+                </div>
+                <div className="form-field">
+                  <label>Password</label>
+                  <input type="password" placeholder="********" />
+                </div>
+                <button type="button" className="btn primary">Entrar</button>
+              </div>
+            ) : (
+              <div className="auth-form-container">
+                <h3>Únete a la familia</h3>
+                <p className="helper">Crea tu cuenta para gestionar tus proyectos.</p>
+                <div className="form-field">
+                  <label>Nombre</label>
+                  <input type="text" placeholder="Tu nombre artístico" />
+                </div>
+                <div className="form-field">
+                  <label>Email</label>
+                  <input type="email" placeholder="tu@email.com" />
+                </div>
+                <div className="form-field">
+                  <label>Password</label>
+                  <input type="password" placeholder="********" />
+                </div>
+                <button type="button" className="btn primary">Registrarme</button>
+              </div>
+            )}
+            <p className="auth-note">Próximamente conexión con Supabase.</p>
+          </div>
+        </div>
+      )}
 
       <footer className="footer">
         Magma Studio - sonido y vision en un solo golpe.
