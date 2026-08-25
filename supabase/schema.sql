@@ -68,3 +68,32 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- 7. Tabla de Proyectos para monitoreo y entregas
+CREATE TABLE public.projects (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    client_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE NOT NULL,
+    title TEXT NOT NULL,
+    type TEXT NOT NULL CHECK (type IN ('music', 'video')),
+    progress INTEGER DEFAULT 0 CHECK (progress >= 0 AND progress <= 100),
+    preview_url TEXT,
+    final_url TEXT,
+    is_paid BOOLEAN DEFAULT false,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Habilitar RLS para proyectos
+ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
+
+-- Políticas para Proyectos
+CREATE POLICY "Management can manage all projects" ON public.projects
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM public.profiles 
+            WHERE id = auth.uid() AND role IN ('owner', 'admin')
+        )
+    );
+
+CREATE POLICY "Clients can view their own projects" ON public.projects
+    FOR SELECT USING (client_id = auth.uid());
+

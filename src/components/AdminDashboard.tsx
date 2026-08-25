@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { financeService, type Transaction } from '../services/financeService'
-import { Plus, TrendingUp, TrendingDown, Wallet, Trash2, X } from 'lucide-react'
+import { Plus, TrendingUp, TrendingDown, Wallet, Trash2, X, AlertCircle } from 'lucide-react'
 
 const AdminDashboard: React.FC = () => {
+  const INITIAL_DEBT = 12000
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(true)
   const [showAddModal, setShowAddModal] = useState(false)
@@ -15,15 +16,16 @@ const AdminDashboard: React.FC = () => {
   })
 
   useEffect(() => {
-    loadTransactions()
+    loadData()
   }, [])
 
-  const loadTransactions = async () => {
+  const loadData = async () => {
+    setLoading(true)
     try {
-      const data = await financeService.getTransactions()
-      setTransactions(data)
+      const transData = await financeService.getTransactions()
+      setTransactions(transData)
     } catch (error) {
-      console.error('Error loading transactions:', error)
+      console.error('Error loading data:', error)
     } finally {
       setLoading(false)
     }
@@ -32,9 +34,15 @@ const AdminDashboard: React.FC = () => {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault()
     try {
-      await financeService.addTransaction(newTransaction)
+      const transactionToSave = { ...newTransaction }
+      if ((newTransaction as any).type === 'payment') {
+        transactionToSave.type = 'expense'
+        transactionToSave.category = 'Deuda'
+      }
+      
+      await financeService.addTransaction(transactionToSave)
       setShowAddModal(false)
-      loadTransactions()
+      loadData()
       setNewTransaction({
         type: 'income',
         amount: 0,
@@ -51,7 +59,7 @@ const AdminDashboard: React.FC = () => {
     if (confirm('¿Eliminar esta transacción?')) {
       try {
         await financeService.deleteTransaction(id)
-        loadTransactions()
+        loadData()
       } catch (error) {
         alert('Error al eliminar')
       }
@@ -68,14 +76,23 @@ const AdminDashboard: React.FC = () => {
     { income: 0, expense: 0, balance: 0 }
   )
 
+  const debtPayments = transactions.reduce((acc, t) => {
+    if (t.type === 'expense' && t.category.toLowerCase().includes('deuda')) {
+      return acc + Number(t.amount)
+    }
+    return acc
+  }, 0)
+
+  const remainingDebt = Math.max(0, INITIAL_DEBT - debtPayments)
+
   if (loading) return <div className="dashboard-loading">Cargando Dashboard...</div>
 
   return (
     <div className="admin-dashboard reveal">
       <div className="dashboard-header">
         <div>
-          <h1>Panel de Control</h1>
-          <p className="muted">Gestiona las finanzas de Magma Studio</p>
+          <h1>Panel de Finanzas</h1>
+          <p className="muted">Gestiona los ingresos, egresos y deudas de AISY Music Studio</p>
         </div>
         <button className="btn primary" onClick={() => setShowAddModal(true)}>
           <Plus size={18} /> Nuevo Movimiento
@@ -102,6 +119,13 @@ const AdminDashboard: React.FC = () => {
           <div className="stat-info">
             <span className="label">Balance Neto</span>
             <span className="value">Bs {stats.balance.toFixed(2)}</span>
+          </div>
+        </div>
+        <div className="stat-card debt">
+          <div className="stat-icon debt"><AlertCircle size={24} /></div>
+          <div className="stat-info">
+            <span className="label">Deuda Pendiente</span>
+            <span className="value">Bs {remainingDebt.toFixed(2)}</span>
           </div>
         </div>
       </div>
@@ -165,10 +189,11 @@ const AdminDashboard: React.FC = () => {
                   <select 
                     className="form-input"
                     value={newTransaction.type}
-                    onChange={(e) => setNewTransaction({...newTransaction, type: e.target.value as 'income' | 'expense'})}
+                    onChange={(e) => setNewTransaction({...newTransaction, type: e.target.value as any})}
                   >
                     <option value="income">Ingreso</option>
                     <option value="expense">Egreso</option>
+                    <option value="payment">Pago de Deuda</option>
                   </select>
                 </div>
                 <div className="form-field">
@@ -181,17 +206,19 @@ const AdminDashboard: React.FC = () => {
                     required 
                   />
                 </div>
-                <div className="form-field">
-                  <label>Categoría</label>
-                  <input 
-                    type="text" 
-                    className="form-input"
-                    placeholder="Ej: Video, Beats, Alquiler..."
-                    value={newTransaction.category}
-                    onChange={(e) => setNewTransaction({...newTransaction, category: e.target.value})}
-                    required 
-                  />
-                </div>
+                {(newTransaction as any).type !== 'payment' && (
+                  <div className="form-field">
+                    <label>Categoría</label>
+                    <input 
+                      type="text" 
+                      className="form-input"
+                      placeholder="Ej: Video, Beats, Alquiler..."
+                      value={newTransaction.category}
+                      onChange={(e) => setNewTransaction({...newTransaction, category: e.target.value})}
+                      required 
+                    />
+                  </div>
+                )}
                 <div className="form-field">
                   <label>Descripción</label>
                   <textarea 

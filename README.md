@@ -1,6 +1,6 @@
-# Magma Studio
+# AISY Music Studio
 
-Single-page site for the Magma Studio recording and video space. Built with
+Single-page site for the AISY Music Studio recording and video space. Built with
 React, Vite, and TypeScript.
 
 ## Sections
